@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMath(document.body);"></script>
     <style>
         .katex-display { margin: 0.5em 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -211,7 +211,7 @@
                 question: "Hasil bagi dari pembagian polinomial $P(x) = 2x^3 + 5x^2 - x + 2$ oleh $(x + 3)$ adalah ...",
                 options: ["$2x^2 - x + 2$", "$2x^2 + x - 2$", "$2x^2 - x - 2$", "$2x^2 + 11x + 32$"],
                 answer: 0,
-                explanation: "Gunakan Horner dengan $x=-3$: koefisien [2, 5, -1, 2]. Baris bawah: 2, -1, 2, sisa 0. Hasil bagi $H(x) = 2x^2 - x + 2$."
+                explanation: "Gunakan Horner dengan $x=-3$ pada koefisien [2, 5, -1, 2]. Baris bawah menghasilkan koefisien hasil bagi 2, -1, 2 dan sisa $-4$. Jadi $H(x)=2x^2-x+2$."
             },
             {
                 num: 3,
@@ -228,13 +228,13 @@
                 method: "Horner / Bersusun",
                 question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S$ dari pembagian polinomial $P(x) = 3x^3 - x^2 + 5x + 2$ oleh $(3x + 2)$.",
                 options: [
-                    "$H(x) = x^2 - x + 2, S = -2$",
+                    "$H(x) = x^2 - x + \frac{7}{3}, S = -\frac{8}{3}$",
                     "$H(x) = 3x^2 - 3x + 7, S = -2$",
                     "$H(x) = x^2 + x + 2, S = 2$",
                     "$H(x) = x^2 - x - 2, S = 6$"
                 ],
                 answer: 0,
-                explanation: "Gunakan Horner dengan $k=-\\frac{2}{3}$. Koefisien [3, -1, 5, 2] -> baris bawah [3, -3, 6, -2]. Karena pembagi $3x+2$, $H(x) = \\frac{3x^2-3x+6}{3} = x^2 - x + 2$ dan $S = -2$."
+                explanation: "Gunakan Horner dengan $k=-\\frac{2}{3}$ pada koefisien [3, -1, 5, 2]. Baris bawah yang benar adalah [3, -3, 7, -\\frac{8}{3}]. Karena $3x+2=3(x+\\frac{2}{3})$, hasil bagi dibagi 3: $H(x)=x^2-x+\\frac{7}{3}$, sedangkan sisa $S=-\\frac{8}{3}$."
             },
             {
                 num: 5,
@@ -344,9 +344,9 @@
                 diff: "Sedang",
                 method: "Horner-Kino / Bersusun",
                 question: "Jika polinomial $P(x) = 2x^4 + ax^3 + bx^2 + 7x - 6$ habis dibagi oleh $(x^2 - x - 2)$, maka nilai $a - b$ adalah ...",
-                options: ["$-7$", "$7$", "$-3$", "$5$"],
+                options: ["$-11$", "$7$", "$-3$", "$5$"],
                 answer: 0,
-                explanation: "Lakukan pembagian bersusun $P(x)$ oleh $x^2 - x - 2$. Agar sisa bagi nol, diperoleh $a = -3$ dan $b = 4$, sehingga $a - b = -3 - 4 = -7$."
+                explanation: "Karena $x^2-x-2=(x-2)(x+1)$ dan polinomial habis dibagi, harus berlaku $P(2)=0$ dan $P(-1)=0$. Dari $P(2)=0$ diperoleh $2a+b=-10$, sedangkan dari $P(-1)=0$ diperoleh $b-a=11$. Maka $a=-7$ dan $b=4$, sehingga $a-b=-7-4=-11$."
             },
 
             // SULIT (15 - 20)
@@ -357,7 +357,7 @@
                 question: "Sisa pembagian $P(x) = x^{100} - 4x^{98} + 2x^3 - 5$ oleh $(x^2 - 4)$ adalah ...",
                 options: ["$8x - 5$", "$8x + 5$", "$-8x - 5$", "$2x - 5$"],
                 answer: 0,
-                explanation: "Gunakan pembagian bersusun/sifat pembagi $(x-2)(x+2)$. Hasil sisa berbentuk $S(x) = ax+b$, diperoleh $S(x) = 8x - 5$."
+                explanation: "Karena $x^2-4=0$ pada pembagian modulo ini, berlaku $x^2\\equiv4$, sehingga $x^{100}-4x^{98}=4^{50}-4\\cdot4^{49}=0$ dan $2x^3\\equiv8x$. Jadi sisanya $S(x)=8x-5$."
             },
             {
                 num: 16,
@@ -378,9 +378,9 @@
                 diff: "Sulit",
                 method: "Horner / Bersusun",
                 question: "Polinomial $P(x) = 2x^3 - 5x^2 + ax + b$ memberikan sisa yang sama jika dibagi oleh $(x - 1)$ maupun oleh $(x + 2)$. Nilai dari $a$ adalah ...",
-                options: ["$13$", "$-13$", "$7$", "$-7$"],
+                options: ["$-11$", "$-13$", "$7$", "$-7$"],
                 answer: 0,
-                explanation: "Lakukan Horner dengan $x=1$ dan $x=-2$. Samakan kedua sisa yang diperoleh untuk mengeliminasi $b$, didapatkan $a = 13$."
+                explanation: "Sisa pembagian oleh $(x-1)$ adalah $P(1)=a+b-3$. Sisa pembagian oleh $(x+2)$ adalah $P(-2)=-36-2a+b$. Samakan kedua sisa: $a+b-3=-36-2a+b$, sehingga $3a=-33$ dan $a=-11$."
             },
             {
                 num: 18,
@@ -388,13 +388,13 @@
                 method: "Horner-Kino / Bersusun",
                 question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S(x)$ dari pembagian polinomial $P(x) = 2x^4 - x^3 + 3x^2 - 4x + 1$ oleh $(x^2 - x + 1)$ dengan metode bersusun atau Horner-Kino.",
                 options: [
-                    "$H(x) = 2x^2 + x + 2$ dan $S(x) = -5x - 1$",
+                    "$H(x) = 2x^2 + x + 2$ dan $S(x) = -3x - 1$",
                     "$H(x) = 2x^2 - x + 1$ dan $S(x) = 3x - 2$",
                     "$H(x) = 2x^2 + 3x - 1$ dan $S(x) = 2x + 3$",
                     "$H(x) = 2x^2 + x - 2$ dan $S(x) = -3x + 5$"
                 ],
                 answer: 0,
-                explanation: "Dengan pembagian bersusun:\n1) $(2x^4 - x^3 + 3x^2) \\div (x^2 - x + 1) = 2x^2$, sisa $x^3 + x^2 - 4x + 1$\n2) $(x^3 - x^2 + x) \\Rightarrow$ sisa $2x^2 - 5x + 1$, quotient $+x$\n3) $(2x^2 - 2x + 2) \\Rightarrow$ sisa $-5x - 1$, quotient $+2$.\nDiperoleh $H(x) = 2x^2 + x + 2$ dan $S(x) = -5x - 1$."
+                explanation: "Pembagian bersusun: $2x^2(x^2-x+1)=2x^4-2x^3+2x^2$, sehingga sisa sementara $x^3+x^2-4x+1$. Berikutnya, $x(x^2-x+1)=x^3-x^2+x$, sehingga sisa menjadi $2x^2-5x+1$. Terakhir, $2(x^2-x+1)=2x^2-2x+2$, sehingga sisa $-3x-1$. Jadi $H(x)=2x^2+x+2$ dan $S(x)=-3x-1$."
             },
             {
                 num: 19,
@@ -420,6 +420,22 @@
                 explanation: "Menggunakan pembagian bersusun:\n$(x^4 + 2x^3 - x^2 + 3x - 2) \\div (x^2 + 2x - 1)$:\n- Perkalian $x^2 \\cdot (x^2 + 2x - 1) = x^4 + 2x^3 - x^2$.\n- Pengurangan menghasilkan sisa langsung $3x - 2$.\nMaka Hasil Bagi $H(x) = x^2$ dan Sisa $S(x) = 3x - 2$."
             }
         ];
+
+        // Render LaTeX delimiters used throughout the quiz data.
+        // KaTeX auto-render does not enable single-dollar delimiters by default,
+        // while questions/options/explanations in this quiz consistently use $...$.
+        function renderMath(root = document.body) {
+            if (typeof window.renderMathInElement !== "function") return;
+            window.renderMathInElement(root, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false },
+                    { left: "\\(", right: "\\)", display: false },
+                    { left: "\\[", right: "\\]", display: true }
+                ],
+                throwOnError: false
+            });
+        }
 
         // State variables
         let studentInfo = { name: "", class: "", no: "" };
@@ -545,10 +561,8 @@
             });
 
             // Re-render KaTeX Math formulas
-            if (window.renderMathInElement) {
-                renderMathInElement(document.getElementById("question-text"));
-                renderMathInElement(optionsContainer);
-            }
+            renderMath(document.getElementById("question-text"));
+            renderMath(optionsContainer);
         }
 
         // Select Option
@@ -628,9 +642,7 @@
             document.getElementById("screen-result").classList.remove("hidden");
 
             // Re-render KaTeX in Review
-            if (window.renderMathInElement) {
-                renderMathInElement(document.getElementById("screen-result"));
-            }
+            renderMath(document.getElementById("screen-result"));
         }
 
         // Render Detailed Review
