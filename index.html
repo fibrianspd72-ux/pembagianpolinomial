@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Pembagian Polinomial Kelas XI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <style>
+        .katex-display { margin: 0.5em 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation Bar -->
+    <header class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold tracking-wide">Kuis Pembagian Polinomial</h1>
+                <p class="text-xs text-indigo-200">Matematika Lanjut Kelas XI - Metode Bersusun, Horner & Horner-Kino</p>
+            </div>
+            <!-- Identity display at top left/right when quiz active -->
+            <div id="student-badge" class="hidden text-right bg-indigo-800 px-3 py-1.5 rounded-lg border border-indigo-500 text-xs">
+                <p class="font-semibold text-amber-300" id="badge-name">-</p>
+                <p class="text-indigo-200"><span id="badge-class">-</span> | No: <span id="badge-no">-</span></p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- STEP 1: IDENTITY INPUT SCREEN -->
+        <div id="screen-welcome" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-lg mx-auto mt-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
+                    𝝅
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Identitas Siswa</h2>
+                <p class="text-sm text-slate-500 mt-1">Isi data diri Anda sebelum memulai kuis 20 soal pembagian polinomial.</p>
+            </div>
+
+            <form id="form-identity" onsubmit="startQuiz(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="input-name" required placeholder="Contoh: Ahmad Fauzi" 
+                           class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Kelas</label>
+                        <input type="text" id="input-class" required placeholder="Contoh: XI MIPA 1" 
+                               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Nomor Presensi</label>
+                        <input type="number" id="input-no" required min="1" max="50" placeholder="Contoh: 05" 
+                               class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded text-xs text-amber-800 mt-4">
+                    <p class="font-semibold">Petunjuk Pengerjaan:</p>
+                    <ul class="list-disc list-inside mt-1 space-y-1">
+                        <li>Kuis terdiri dari 20 soal pilihan ganda.</li>
+                        <li>Metode penyelesaian dapat menggunakan **Bersusun**, **Horner**, atau **Horner-Kino**.</li>
+                        <li>Anda dapat mengubah jawaban sebelum menekan tombol Selesai.</li>
+                    </ul>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transition transform active:scale-95 mt-2">
+                    Mulai Kerjakan Kuis →
+                </button>
+            </form>
+        </div>
+
+        <!-- STEP 2: QUIZ SCREEN -->
+        <div id="screen-quiz" class="hidden space-y-6">
+            
+            <!-- Student Header Badge (Pojok Kiri Atas Area Soal) -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex justify-between items-center">
+                <div class="text-left">
+                    <span class="text-xs uppercase tracking-wider text-indigo-500 font-bold block">Identitas Siswa</span>
+                    <span id="quiz-student-info" class="text-sm font-semibold text-indigo-900">Nama | Kelas | No</span>
+                </div>
+                <div class="text-right">
+                    <span id="progress-text" class="text-xs font-bold bg-indigo-600 text-white px-3 py-1 rounded-full">Soal 1 dari 20</span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <span id="question-difficulty" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                        Mudah
+                    </span>
+                    <span id="question-method" class="text-xs text-slate-500 font-medium">
+                        Metode: Horner / Bersusun
+                    </span>
+                </div>
+
+                <!-- Question Text -->
+                <div id="question-text" class="text-lg md:text-xl font-medium text-slate-800 leading-relaxed mb-6">
+                    <!-- Dynamic Question Content -->
+                </div>
+
+                <!-- Options -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Dynamic Options -->
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center pt-2">
+                <button id="btn-prev" onclick="prevQuestion()" 
+                        class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed">
+                    ← Sebelumnya
+                </button>
+                <div class="flex space-x-2">
+                    <button id="btn-next" onclick="nextQuestion()" 
+                            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
+                        Berikutnya →
+                    </button>
+                    <button id="btn-finish" onclick="confirmFinish()" 
+                            class="hidden px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg transition">
+                        ✓ Selesai & Kirim
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Grid Navigator -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 mt-6">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Navigasi Nomor Soal</h4>
+                <div id="grid-navigation" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                    <!-- Dynamic 20 buttons -->
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: RESULT & FEEDBACK SCREEN -->
+        <div id="screen-result" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-slate-200">
+                <div class="inline-block p-4 bg-indigo-50 rounded-full mb-3">
+                    <span class="text-4xl">🏆</span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Hasil Kuis Pembagian Polinomial</h2>
+                <p id="result-student-name" class="text-slate-600 font-medium text-lg mt-1">Siswa: -</p>
+                <p id="result-student-class" class="text-slate-500 text-sm">Kelas: - | No: -</p>
+
+                <!-- Score Board -->
+                <div class="grid grid-cols-3 gap-4 max-w-md mx-auto my-6">
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <span class="block text-xs font-bold text-indigo-600 uppercase">Nilai akhir</span>
+                        <span id="final-score" class="text-3xl font-extrabold text-indigo-700">0</span>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+                        <span class="block text-xs font-bold text-emerald-600 uppercase">Benar</span>
+                        <span id="count-correct" class="text-3xl font-extrabold text-emerald-600">0</span>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl">
+                        <span class="block text-xs font-bold text-rose-600 uppercase">Salah</span>
+                        <span id="count-wrong" class="text-3xl font-extrabold text-rose-600">0</span>
+                    </div>
+                </div>
+
+                <!-- Feedback Message -->
+                <div id="feedback-box" class="p-4 rounded-xl text-sm font-medium mb-4 max-w-lg mx-auto">
+                    <!-- Dynamic feedback message -->
+                </div>
+
+                <button onclick="restartQuiz()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
+                    🔄 Coba Lagi
+                </button>
+            </div>
+
+            <!-- Detailed Answer Review -->
+            <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Pembahasan & Evaluasi Soal</h3>
+                <div id="review-container" class="space-y-4">
+                    <!-- Dynamic Review Cards -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-200 border-t border-slate-300 py-4 text-center text-xs text-slate-600">
+        <p>© Matematika Lanjut Kelas XI — Modul Pembagian Polinomial</p>
+    </footer>
+
+    <script>
+        // Quiz Data Array
+        const quizData = [
+            // MUDAH (1 - 7)
+            {
+                num: 1,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Berapakah sisa pembagian dari polinomial $P(x) = x^3 - 3x^2 + 4x - 5$ jika dibagi oleh $(x - 2)$?",
+                options: ["$-1$", "$1$", "$-3$", "$3$"],
+                answer: 0,
+                explanation: "Gunakan Horner dengan $x=2$: koefisien [1, -3, 4, -5]. Baris hasil: 1, -1, 2, sisa = -1."
+            },
+            {
+                num: 2,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Hasil bagi dari pembagian polinomial $P(x) = 2x^3 + 5x^2 - x + 2$ oleh $(x + 3)$ adalah ...",
+                options: ["$2x^2 - x + 2$", "$2x^2 + x - 2$", "$2x^2 - x - 2$", "$2x^2 + 11x + 32$"],
+                answer: 0,
+                explanation: "Gunakan Horner dengan $x=-3$: koefisien [2, 5, -1, 2]. Baris bawah: 2, -1, 2, sisa 0. Hasil bagi $H(x) = 2x^2 - x + 2$."
+            },
+            {
+                num: 3,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Sisa pembagian $P(x) = 4x^3 - 2x^2 + x - 1$ oleh $(2x - 1)$ adalah ...",
+                options: ["$-\\frac{1}{2}$", "$\\frac{1}{2}$", "$-1$", "$0$"],
+                answer: 0,
+                explanation: "Gunakan Horner dengan $x=\\frac{1}{2}$: koefisien [4, -2, 1, -1]. Baris bawah: 4, 0, 1, sisa $-\\frac{1}{2}$."
+            },
+            {
+                num: 4,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S$ dari pembagian polinomial $P(x) = 3x^3 - x^2 + 5x + 2$ oleh $(3x + 2)$.",
+                options: [
+                    "$H(x) = x^2 - x + 2, S = -2$",
+                    "$H(x) = 3x^2 - 3x + 7, S = -2$",
+                    "$H(x) = x^2 + x + 2, S = 2$",
+                    "$H(x) = x^2 - x - 2, S = 6$"
+                ],
+                answer: 0,
+                explanation: "Gunakan Horner dengan $k=-\\frac{2}{3}$. Koefisien [3, -1, 5, 2] -> baris bawah [3, -3, 6, -2]. Karena pembagi $3x+2$, $H(x) = \\frac{3x^2-3x+6}{3} = x^2 - x + 2$ dan $S = -2$."
+            },
+            {
+                num: 5,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Berapakah sisa pembagian $P(x) = x^4 - 2x^2 + 1$ oleh $(x + 1)$?",
+                options: ["$0$", "$1$", "$-1$", "$2$"],
+                answer: 0,
+                explanation: "Gunakan Horner $x=-1$: koefisien [1, 0, -2, 0, 1]. Sisa yang diperoleh adalah $0$."
+            },
+            {
+                num: 6,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Hasil bagi dari pembagian polinomial $P(x) = 6x^3 - 7x^2 - 11x + 12$ oleh $(2x - 3)$ adalah ...",
+                options: ["$3x^2 + x - 4$", "$6x^2 + 2x - 8$", "$3x^2 - x - 4$", "$3x^2 + 2x - 4$"],
+                answer: 0,
+                explanation: "Horner dengan $k=\\frac{3}{2}$: koefisien [6, -7, -11, 12] -> baris bawah [6, 2, -8, 0]. Dibagi $a=2$ menjadi $H(x) = 3x^2 + x - 4$."
+            },
+            {
+                num: 7,
+                diff: "Mudah",
+                method: "Horner / Bersusun",
+                question: "Jika polinomial $P(x) = x^3 - kx^2 + 4x - 8$ habis dibagi oleh $(x - 2)$, maka nilai $k$ adalah ...",
+                options: ["$2$", "$3$", "$4$", "$-2$"],
+                answer: 0,
+                explanation: "Horner $x=2$: $2^3 - k(2)^2 + 4(2) - 8 = 0 \\Rightarrow 8 - 4k + 8 - 8 = 0 \\Rightarrow 4k = 8 \\Rightarrow k = 2$."
+            },
+
+            // SEDANG (8 - 14)
+            {
+                num: 8,
+                diff: "Sedang",
+                method: "Horner-Kino / Bersusun",
+                question: "Tentukan sisa pembagian dari $P(x) = x^4 - 3x^3 + 2x^2 + x - 6$ oleh $(x^2 - 3x + 2)$.",
+                options: ["$x - 6$", "$x + 6$", "$-x + 6$", "$2x - 4$"],
+                answer: 0,
+                explanation: "Pembagi $x^2 - 3x + 2 = (x-1)(x-2)$. Menggunakan pembagian bersusun/Horner-Kino didapatkan sisa $S(x) = x - 6$."
+            },
+            {
+                num: 9,
+                diff: "Sedang",
+                method: "Horner-Kino / Bersusun",
+                question: "Ditentukan polinomial $P(x) = 2x^4 - 3x^3 + x^2 - 2x + 5$ dibagi oleh $(x^2 - 1)$. Hasil bagi $H(x)$ dan sisa bagi $S(x)$ berturut-turut adalah ...",
+                options: [
+                    "$H(x) = 2x^2 - 3x + 3$ dan $S(x) = -5x + 8$",
+                    "$H(x) = 2x^2 - 3x + 1$ dan $S(x) = 5x - 8$",
+                    "$H(x) = 2x^2 + 3x - 3$ dan $S(x) = -5x - 8$",
+                    "$H(x) = 2x^2 - 3x + 3$ dan $S(x) = 5x + 8$"
+                ],
+                answer: 0,
+                explanation: "Gunakan metode bersusun atau Horner-Kino dengan pembagi $x^2 + 0x - 1$. Diperoleh hasil bagi $H(x) = 2x^2 - 3x + 3$ dan sisa $S(x) = -5x + 8$."
+            },
+            {
+                num: 10,
+                diff: "Sedang",
+                method: "Horner-Kino / Bersusun",
+                question: "Tentukan hasil bagi pembagian $P(x) = x^3 + 2x^2 - 5x - 6$ oleh $(x^2 + x - 6)$.",
+                options: ["$x + 1$", "$x - 1$", "$x + 2$", "$x - 3$"],
+                answer: 0,
+                explanation: "Pembagian bersusun $(x^3 + 2x^2 - 5x - 6) \\div (x^2 + x - 6)$ menghasilkan $H(x) = x + 1$ dengan sisa $0$."
+            },
+            {
+                num: 11,
+                diff: "Sedang (Sederhana)",
+                method: "Horner / Bersusun",
+                question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S$ dari pembagian $P(x) = 2x^3 - 3x^2 + 4x - 5$ oleh $(x - 2)$ menggunakan metode Horner atau bersusun.",
+                options: [
+                    "$H(x) = 2x^2 + x + 6$ dan $S = 7$",
+                    "$H(x) = 2x^2 - 7x + 18$ dan $S = -41$",
+                    "$H(x) = 2x^2 + x + 2$ dan $S = -1$",
+                    "$H(x) = 2x^2 + 3x + 4$ dan $S = 3$"
+                ],
+                answer: 0,
+                explanation: "Bila dilakukan skema Horner dengan $k=2$ pada koefisien [2, -3, 4, -5]:\nBaris 1: 2, -3, 4, -5\nBaris 2: _, 4, 2, 12\nBaris 3: 2, 1, 6, [7]\nHasil bagi $H(x) = 2x^2 + x + 6$ dan Sisa $S = 7$."
+            },
+            {
+                num: 12,
+                diff: "Sedang (Sederhana)",
+                method: "Horner / Bersusun",
+                question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S$ jika $P(x) = 3x^3 + 2x^2 - 7x + 4$ dibagi oleh $(x + 1)$ menggunakan metode bersusun atau Horner.",
+                options: [
+                    "$H(x) = 3x^2 - x - 6$ dan $S = 10$",
+                    "$H(x) = 3x^2 + 5x - 2$ dan $S = 6$",
+                    "$H(x) = 3x^2 - x + 6$ dan $S = -2$",
+                    "$H(x) = 3x^2 + x - 8$ dan $S = 12$"
+                ],
+                answer: 0,
+                explanation: "Menggunakan Horner $k=-1$ pada koefisien [3, 2, -7, 4]:\n[3, 2, -7, 4] dengan pembalik -1 menghasilkan [3, -1, -6] dan sisa $10$.\nMaka $H(x) = 3x^2 - x - 6$ dan $S = 10$."
+            },
+            {
+                num: 13,
+                diff: "Sedang (Sederhana)",
+                method: "Horner / Bersusun",
+                question: "Dengan metode bersusun atau Horner, tentukan hasil bagi $H(x)$ dan sisa $S$ dari pembagian $P(x) = 4x^3 - 6x^2 + 2x + 3$ oleh $(2x - 1)$.",
+                options: [
+                    "$H(x) = 2x^2 - 2x$ dan $S = 3$",
+                    "$H(x) = 4x^2 - 4x$ dan $S = 3$",
+                    "$H(x) = 2x^2 - 4x + 1$ dan $S = 4$",
+                    "$H(x) = 2x^2 - x + 1$ dan $S = 2$"
+                ],
+                answer: 0,
+                explanation: "Horner $k=\\frac{1}{2}$ pada [4, -6, 2, 3] memberikan koefisien sementara [4, -4, 0] dan sisa $3$.\nSebab pembagi $2x-1$, bagi koefisien sementara dengan $2$: $H(x) = 2x^2 - 2x$ dan sisa $S = 3$."
+            },
+            {
+                num: 14,
+                diff: "Sedang",
+                method: "Horner-Kino / Bersusun",
+                question: "Jika polinomial $P(x) = 2x^4 + ax^3 + bx^2 + 7x - 6$ habis dibagi oleh $(x^2 - x - 2)$, maka nilai $a - b$ adalah ...",
+                options: ["$-7$", "$7$", "$-3$", "$5$"],
+                answer: 0,
+                explanation: "Lakukan pembagian bersusun $P(x)$ oleh $x^2 - x - 2$. Agar sisa bagi nol, diperoleh $a = -3$ dan $b = 4$, sehingga $a - b = -3 - 4 = -7$."
+            },
+
+            // SULIT (15 - 20)
+            {
+                num: 15,
+                diff: "Sulit",
+                method: "Horner-Kino / Bersusun",
+                question: "Sisa pembagian $P(x) = x^{100} - 4x^{98} + 2x^3 - 5$ oleh $(x^2 - 4)$ adalah ...",
+                options: ["$8x - 5$", "$8x + 5$", "$-8x - 5$", "$2x - 5$"],
+                answer: 0,
+                explanation: "Gunakan pembagian bersusun/sifat pembagi $(x-2)(x+2)$. Hasil sisa berbentuk $S(x) = ax+b$, diperoleh $S(x) = 8x - 5$."
+            },
+            {
+                num: 16,
+                diff: "Sulit",
+                method: "Horner-Kino / Bersusun",
+                question: "Diketahui polinomial $P(x) = x^3 - 2x^2 + 3x + 1$. Tentukan hasil bagi $H(x)$ dan sisa bagi $S(x)$ jika $P(x)$ dibagi oleh $(x^2 - 1)$.",
+                options: [
+                    "$H(x) = x - 2$ dan $S(x) = 4x - 1$",
+                    "$H(x) = x - 2$ dan $S(x) = 2x + 1$",
+                    "$H(x) = x + 2$ dan $S(x) = 4x + 1$",
+                    "$H(x) = x - 1$ dan $S(x) = 3x - 2$"
+                ],
+                answer: 0,
+                explanation: "Pembagian bersusun $(x^3 - 2x^2 + 3x + 1) \\div (x^2 - 1)$ memberikan hasil bagi $H(x) = x - 2$ dan sisa $S(x) = 4x - 1$."
+            },
+            {
+                num: 17,
+                diff: "Sulit",
+                method: "Horner / Bersusun",
+                question: "Polinomial $P(x) = 2x^3 - 5x^2 + ax + b$ memberikan sisa yang sama jika dibagi oleh $(x - 1)$ maupun oleh $(x + 2)$. Nilai dari $a$ adalah ...",
+                options: ["$13$", "$-13$", "$7$", "$-7$"],
+                answer: 0,
+                explanation: "Lakukan Horner dengan $x=1$ dan $x=-2$. Samakan kedua sisa yang diperoleh untuk mengeliminasi $b$, didapatkan $a = 13$."
+            },
+            {
+                num: 18,
+                diff: "Sulit (Sederhana)",
+                method: "Horner-Kino / Bersusun",
+                question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S(x)$ dari pembagian polinomial $P(x) = 2x^4 - x^3 + 3x^2 - 4x + 1$ oleh $(x^2 - x + 1)$ dengan metode bersusun atau Horner-Kino.",
+                options: [
+                    "$H(x) = 2x^2 + x + 2$ dan $S(x) = -5x - 1$",
+                    "$H(x) = 2x^2 - x + 1$ dan $S(x) = 3x - 2$",
+                    "$H(x) = 2x^2 + 3x - 1$ dan $S(x) = 2x + 3$",
+                    "$H(x) = 2x^2 + x - 2$ dan $S(x) = -3x + 5$"
+                ],
+                answer: 0,
+                explanation: "Dengan pembagian bersusun:\n1) $(2x^4 - x^3 + 3x^2) \\div (x^2 - x + 1) = 2x^2$, sisa $x^3 + x^2 - 4x + 1$\n2) $(x^3 - x^2 + x) \\Rightarrow$ sisa $2x^2 - 5x + 1$, quotient $+x$\n3) $(2x^2 - 2x + 2) \\Rightarrow$ sisa $-5x - 1$, quotient $+2$.\nDiperoleh $H(x) = 2x^2 + x + 2$ dan $S(x) = -5x - 1$."
+            },
+            {
+                num: 19,
+                diff: "Sulit",
+                method: "Horner-Kino / Bersusun",
+                question: "Sisa pembagian $P(x) = (x - 2)^{20} + (x - 1)^{10} - 1$ oleh $(x^2 - 3x + 2)$ adalah ...",
+                options: ["$0$", "$x - 1$", "$x - 2$", "$1$"],
+                answer: 0,
+                explanation: "Pembagi $(x-1)(x-2)$. Sisa $S(x)=ax+b$. Untuk $x=1$, $S(1)=0$. Untuk $x=2$, $S(2)=0$. Berarti $a=0, b=0 \\Rightarrow S(x) = 0$."
+            },
+            {
+                num: 20,
+                diff: "Sulit (Sederhana)",
+                method: "Horner-Kino / Bersusun",
+                question: "Tentukan hasil bagi $H(x)$ dan sisa bagi $S(x)$ dari pembagian $P(x) = x^4 + 2x^3 - x^2 + 3x - 2$ oleh $(x^2 + 2x - 1)$ menggunakan metode bersusun atau Horner-Kino.",
+                options: [
+                    "$H(x) = x^2$ dan $S(x) = 3x - 2$",
+                    "$H(x) = x^2 + 1$ dan $S(x) = x - 1$",
+                    "$H(x) = x^2 - 1$ dan $S(x) = 2x + 1$",
+                    "$H(x) = x^2 + 2$ dan $S(x) = -x$"
+                ],
+                answer: 0,
+                explanation: "Menggunakan pembagian bersusun:\n$(x^4 + 2x^3 - x^2 + 3x - 2) \\div (x^2 + 2x - 1)$:\n- Perkalian $x^2 \\cdot (x^2 + 2x - 1) = x^4 + 2x^3 - x^2$.\n- Pengurangan menghasilkan sisa langsung $3x - 2$.\nMaka Hasil Bagi $H(x) = x^2$ dan Sisa $S(x) = 3x - 2$."
+            }
+        ];
+
+        // State variables
+        let studentInfo = { name: "", class: "", no: "" };
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        // Start Quiz
+        function startQuiz(e) {
+            e.preventDefault();
+            studentInfo.name = document.getElementById("input-name").value.trim();
+            studentInfo.class = document.getElementById("input-class").value.trim();
+            studentInfo.no = document.getElementById("input-no").value.trim();
+
+            if (!studentInfo.name || !studentInfo.class || !studentInfo.no) return;
+
+            // Set Header Badges
+            document.getElementById("badge-name").innerText = studentInfo.name;
+            document.getElementById("badge-class").innerText = studentInfo.class;
+            document.getElementById("badge-no").innerText = studentInfo.no;
+            document.getElementById("student-badge").classList.remove("hidden");
+
+            document.getElementById("quiz-student-info").innerText = `${studentInfo.name} | ${studentInfo.class} | Presensi: ${studentInfo.no}`;
+
+            // Switch Screens
+            document.getElementById("screen-welcome").classList.add("hidden");
+            document.getElementById("screen-quiz").classList.remove("hidden");
+
+            renderGridNav();
+            loadQuestion(0);
+        }
+
+        // Render Question Grid Navigator
+        function renderGridNav() {
+            const gridContainer = document.getElementById("grid-navigation");
+            gridContainer.innerHTML = "";
+
+            quizData.forEach((q, index) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.id = `grid-btn-${index}`;
+                btn.className = `h-9 rounded-lg font-bold text-xs transition border flex items-center justify-center ${
+                    userAnswers[index] !== null 
+                    ? 'bg-indigo-600 text-white border-indigo-600' 
+                    : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                }`;
+                btn.innerText = index + 1;
+                btn.onclick = () => loadQuestion(index);
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // Load Question Content
+        function loadQuestion(index) {
+            currentQuestion = index;
+            const q = quizData[index];
+
+            // Update Progress UI
+            document.getElementById("progress-text").innerText = `Soal ${index + 1} dari ${quizData.length}`;
+            
+            // Difficulty styling
+            const diffBadge = document.getElementById("question-difficulty");
+            diffBadge.innerText = q.diff;
+            if (q.diff.includes("Mudah")) {
+                diffBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800";
+            } else if (q.diff.includes("Sedang")) {
+                diffBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800";
+            } else {
+                diffBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800";
+            }
+
+            document.getElementById("question-method").innerText = `Metode Recomendasi: ${q.method}`;
+            document.getElementById("question-text").innerHTML = `${q.num}. ${q.question}`;
+
+            // Render Options
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = "";
+
+            const labels = ["A", "B", "C", "D"];
+            q.options.forEach((optText, optIdx) => {
+                const isSelected = userAnswers[index] === optIdx;
+                const optBtn = document.createElement("button");
+                optBtn.type = "button";
+                optBtn.onclick = () => selectOption(optIdx);
+                optBtn.className = `w-full text-left p-4 rounded-xl border-2 transition flex items-center justify-between ${
+                    isSelected 
+                    ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 font-semibold shadow-sm" 
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                }`;
+
+                optBtn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                            isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
+                        }">${labels[optIdx]}</span>
+                        <span class="text-base">${optText}</span>
+                    </div>
+                    ${isSelected ? '<span class="text-indigo-600 font-bold text-lg">✓</span>' : ''}
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Update Navigation Button States
+            document.getElementById("btn-prev").disabled = index === 0;
+            
+            if (index === quizData.length - 1) {
+                document.getElementById("btn-next").classList.add("hidden");
+                document.getElementById("btn-finish").classList.remove("hidden");
+            } else {
+                document.getElementById("btn-next").classList.remove("hidden");
+                document.getElementById("btn-finish").classList.add("hidden");
+            }
+
+            // Highlight Active in Grid
+            quizData.forEach((_, i) => {
+                const btn = document.getElementById(`grid-btn-${i}`);
+                if (btn) {
+                    if (i === index) {
+                        btn.classList.add("ring-2", "ring-offset-1", "ring-indigo-600");
+                    } else {
+                        btn.classList.remove("ring-2", "ring-offset-1", "ring-indigo-600");
+                    }
+                }
+            });
+
+            // Re-render KaTeX Math formulas
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById("question-text"));
+                renderMathInElement(optionsContainer);
+            }
+        }
+
+        // Select Option
+        function selectOption(optionIdx) {
+            userAnswers[currentQuestion] = optionIdx;
+            
+            // Update Grid button styling
+            const gridBtn = document.getElementById(`grid-btn-${currentQuestion}`);
+            if (gridBtn) {
+                gridBtn.className = "h-9 rounded-lg font-bold text-xs transition border flex items-center justify-center bg-indigo-600 text-white border-indigo-600 ring-2 ring-offset-1 ring-indigo-600";
+            }
+
+            loadQuestion(currentQuestion);
+        }
+
+        // Previous & Next Navigation
+        function prevQuestion() {
+            if (currentQuestion > 0) loadQuestion(currentQuestion - 1);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) loadQuestion(currentQuestion + 1);
+        }
+
+        // Confirm Finish
+        function confirmFinish() {
+            const unanswered = userAnswers.filter(a => a === null).length;
+            if (unanswered > 0) {
+                if (!confirm(`Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin menyelesaikan kuis sekarang?`)) {
+                    return;
+                }
+            } else {
+                if (!confirm("Apakah Anda yakin ingin menyelesaikan kuis dan melihat hasil?")) {
+                    return;
+                }
+            }
+            calculateResult();
+        }
+
+        // Calculate Result and Show Feedback
+        function calculateResult() {
+            let correctCount = 0;
+            quizData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            const wrongCount = quizData.length - correctCount;
+            const score = Math.round((correctCount / quizData.length) * 100);
+
+            // Populate Result Screen
+            document.getElementById("result-student-name").innerText = `Siswa: ${studentInfo.name}`;
+            document.getElementById("result-student-class").innerText = `Kelas: ${studentInfo.class} | Presensi: ${studentInfo.no}`;
+            document.getElementById("final-score").innerText = score;
+            document.getElementById("count-correct").innerText = correctCount;
+            document.getElementById("count-wrong").innerText = wrongCount;
+
+            // Feedback Message
+            const feedbackBox = document.getElementById("feedback-box");
+            if (score >= 85) {
+                feedbackBox.className = "p-4 rounded-xl text-sm font-medium mb-4 max-w-lg mx-auto bg-emerald-100 text-emerald-900 border border-emerald-300";
+                feedbackBox.innerHTML = "🌟 <b>Sangat Luar Biasa!</b> Anda telah menguasai metode Pembagian Bersusun, Horner, dan Horner-Kino dengan sangat baik!";
+            } else if (score >= 70) {
+                feedbackBox.className = "p-4 rounded-xl text-sm font-medium mb-4 max-w-lg mx-auto bg-indigo-100 text-indigo-900 border border-indigo-300";
+                feedbackBox.innerHTML = "👍 <b>Bagus Sekali!</b> Pemahaman Anda sudah baik. Perhatikan ketelitian perhitungan pada soal berderajat tinggi.";
+            } else {
+                feedbackBox.className = "p-4 rounded-xl text-sm font-medium mb-4 max-w-lg mx-auto bg-amber-100 text-amber-900 border border-amber-300";
+                feedbackBox.innerHTML = "📚 <b>Tetap Semangat!</b> Pelajari kembali alur penataan koefisien pada metode Horner dan pembagian bersusun, lalu coba lagi!";
+            }
+
+            // Render Detailed Review
+            renderReview();
+
+            // Switch Screen
+            document.getElementById("screen-quiz").classList.add("hidden");
+            document.getElementById("screen-result").classList.remove("hidden");
+
+            // Re-render KaTeX in Review
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById("screen-result"));
+            }
+        }
+
+        // Render Detailed Review
+        function renderReview() {
+            const container = document.getElementById("review-container");
+            container.innerHTML = "";
+
+            quizData.forEach((q, idx) => {
+                const userAns = userAnswers[idx];
+                const isCorrect = userAns === q.answer;
+                const labels = ["A", "B", "C", "D"];
+
+                const card = document.createElement("div");
+                card.className = `p-4 rounded-xl border text-sm ${
+                    isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-rose-50/50 border-rose-200'
+                }`;
+
+                const userAnsText = userAns !== null ? `${labels[userAns]}. ${q.options[userAns]}` : "<i>Tidak dijawab</i>";
+                const correctAnsText = `${labels[q.answer]}. ${q.options[q.answer]}`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="font-bold text-slate-800">Soal #${q.num} (${q.diff})</span>
+                        <span class="px-2 py-0.5 rounded text-xs font-bold ${
+                            isCorrect ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'
+                        }">${isCorrect ? 'BENAR' : 'SALAH'}</span>
+                    </div>
+                    <p class="text-slate-700 mt-2 font-medium">${q.question}</p>
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 rounded bg-white border">
+                            <span class="text-slate-500 block">Jawaban Anda:</span>
+                            <span class="${isCorrect ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}">${userAnsText}</span>
+                        </div>
+                        <div class="p-2 rounded bg-white border">
+                            <span class="text-slate-500 block">Jawaban Benar:</span>
+                            <span class="text-emerald-700 font-bold">${correctAnsText}</span>
+                        </div>
+                    </div>
+                    <div class="mt-2 p-2.5 bg-slate-100 rounded text-xs text-slate-600">
+                        <span class="font-bold text-slate-700">Pembahasan:</span> ${q.explanation}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            userAnswers.fill(null);
+            document.getElementById("screen-result").classList.add("hidden");
+            document.getElementById("screen-welcome").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
+```eof
